@@ -5,12 +5,22 @@
 
 <!-- Search form -->
 <form method="get" class="mb-4">
-    <div class="input-group">
-        <input type="text" name="q" class="form-control" placeholder="Search jobs by title" value="{{ query|default:'' }}">
-        <button type="submit" class="btn btn-primary">Search</button>
-    </div>
-</form>
+    <div class="input-group input-group-lg">
+        <input type="text"
+               name="q"
+               class="form-control {% if user.is_authenticated and user.profile.dark_mode %}bg-dark text-light border-secondary{% else %}bg-light text-dark{% endif %}"
+               placeholder="🔍 Search jobs by title, keyword, or location..."
+               value="{{ query|default:'' }}"
+               aria-label="Search jobs">
 
+        <button type="submit"
+                class="btn {% if user.is_authenticated and user.profile.dark_mode %}btn-outline-light{% else %}btn-primary{% endif %} px-4"
+                aria-label="Submit search">
+            <i class="fas fa-search me-1"></i> Search
+        </button>
+    </div>
+
+    <br>
 <!-- Jobs Grid -->
 <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
     {% for job in jobs %}
@@ -56,11 +66,11 @@
 <!-- Add CSS for circular profile pics -->
 <style>
 .profile-pic {
-    width: 40px;             /* small circle size */
+    width: 40px;
     height: 40px;
-    object-fit: cover;       /* fills circle without distortion */
-    border-radius: 50%;      /* makes it circular */
-    border: 1px solid #ddd;  /* subtle border like WhatsApp */
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #ddd;
 }
 </style>
 
