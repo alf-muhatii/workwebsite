@@ -1,0 +1,16 @@
+{% extends 'jobs/base.html' %}
+{% block content %}
+<h2>Edit Profile</h2>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label>Bio:</label><br>
+    {{ form.bio }}<br><br>
+
+    <label>Profile Picture:</label><br>
+    {{ form.profile_pic }}<br><br>
+
+    <button type="submit">Save Changes</button>
+</form>
+{% endblock %}
