@@ -3,13 +3,12 @@
 {% block content %}
 <h2 class="mb-4">Available Jobs</h2>
 
-<!-- Search form -->
 <form method="get" class="mb-4">
     <div class="input-group input-group-lg">
         <input type="text"
                name="q"
                class="form-control {% if user.is_authenticated and user.profile.dark_mode %}bg-dark text-light border-secondary{% else %}bg-light text-dark{% endif %}"
-               placeholder="🔍 Search jobs by title, keyword, or location..."
+               placeholder="Search jobs by title or location..."
                value="{{ query|default:'' }}"
                aria-label="Search jobs">
 
@@ -21,9 +20,9 @@
     </div>
 
     <br>
-    
-<!-- Jobs Grid -->
-<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
     {% for job in jobs %}
     <div class="col">
         <div class="card h-100">
@@ -64,7 +63,6 @@
     {% endfor %}
 </div>
 
-<!-- Add CSS for circular profile pics -->
 <style>
 .profile-pic {
     width: 40px;
