@@ -1,8 +1,7 @@
 {% extends 'jobs/base.html' %}
 {% block content %}
 
-
-<div class="container mt-4">
+<div class="container mt-4 {% if user.profile.dark_mode %}dark-mode{% endif %}">
     <h2 class="mb-4">Post a Job</h2>
 
     <form method="post" enctype="multipart/form-data">
@@ -11,5 +10,61 @@
         <button type="submit" class="btn btn-primary">Post Job</button>
     </form>
 </div>
+
+<style>
+/* Light mode defaults */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #212529;
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --btn-bg: #0d6efd;
+    --btn-text: #ffffff;
+}
+
+/* Dark mode overrides */
+.dark-mode {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --input-bg: #1e1e1e;
+    --input-border: #555555;
+    --btn-bg: #0d6efd;
+    --btn-text: #ffffff;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+/* Container */
+.dark-mode, .dark-mode form {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Form fields */
+.dark-mode input,
+.dark-mode textarea,
+.dark-mode select {
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    padding: 8px;
+    width: 100%;
+    margin-bottom: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Button */
+.dark-mode .btn-primary {
+    background-color: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
+    transition: background-color 0.3s ease;
+}
+.dark-mode .btn-primary:hover {
+    opacity: 0.9;
+}
+</style>
 
 {% endblock %}

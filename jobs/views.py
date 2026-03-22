@@ -1,24 +1,38 @@
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.db.models import Q
 
-from django.shortcuts import render
-from .models import Job
-from django.db.models import Q  # make sure this is at the top
+from .models import Job, Notification, Profile
+from .forms import JobForm, ProfileForm
 
 
 def home(request):
+    if request.user.is_authenticated:
+        notifications = request.user.notifications.all().order_by('-created_at')[:5]
+    else:
+        notifications = []
+
     query = request.GET.get('q')
+
     if query:
         jobs = Job.objects.filter(
-            Q(title__icontains=query) | Q(county__icontains=query) | Q(description__icontains=query)
+            Q(title__icontains=query) |
+            Q(county__icontains=query) |
+            Q(description__icontains=query)
         ).order_by('-created_at')
     else:
         jobs = Job.objects.all().order_by('-created_at')
-    return render(request, 'jobs/home.html', {'jobs': jobs, 'query': query})
 
-from django.shortcuts import redirect
-from .forms import JobForm
-from django.contrib.auth.decorators import login_required
+    return render(request, 'jobs/home.html', {
+        'jobs': jobs,
+        'query': query,
+        'notifications': notifications
+    })
+
 
 @login_required
 def post_job(request):
@@ -28,25 +42,36 @@ def post_job(request):
             job = form.save(commit=False)
             job.posted_by = request.user
             job.save()
+
+            # Notify all other users
+            users = User.objects.exclude(id=request.user.id)
+            for user in users:
+                Notification.objects.create(
+                    user=user,
+                    message=f"New job posted: {job.title}"
+                )
+
+            messages.success(request, "Job posted successfully!")
             return redirect('home')
     else:
         form = JobForm()
+
     return render(request, 'jobs/post_job.html', {'form': form})
+
 
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            Profile.objects.get_or_create(user=user)
             login(request, user)
             return redirect('home')
     else:
         form = UserCreationForm()
+
     return render(request, 'jobs/register.html', {'form': form})
 
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from .models import Profile
 
 def login_view(request):
     if request.method == "POST":
@@ -67,20 +92,16 @@ def login_view(request):
 
     return render(request, 'jobs/login.html')
 
+
 def logout_view(request):
     logout(request)
     return redirect('home')
 
 
-
-from django.shortcuts import get_object_or_404
-from django.contrib import messages
-
 @login_required
 def delete_job(request, job_id):
     job = get_object_or_404(Job, id=job_id)
 
-    # Only the user who posted can delete
     if job.posted_by != request.user:
         messages.error(request, "You are not allowed to delete this job.")
         return redirect('home')
@@ -93,17 +114,22 @@ def delete_job(request, job_id):
     return render(request, 'jobs/confirm_delete.html', {'job': job})
 
 
-
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def save_job(request, job_id):
     job = get_object_or_404(Job, id=job_id)
 
     if request.user in job.saved_by.all():
         job.saved_by.remove(request.user)
+        messages.info(request, "Job removed from saved.")
     else:
         job.saved_by.add(request.user)
+        messages.success(request, "Job saved successfully!")
+
+        # Notification when saving
+        Notification.objects.create(
+            user=request.user,
+            message=f"You saved {job.title}"
+        )
 
     return redirect('home')
 
@@ -114,14 +140,10 @@ def saved_jobs(request):
     return render(request, 'jobs/saved_jobs.html', {'jobs': jobs})
 
 
-from django.contrib.auth.decorators import login_required
-
 @login_required
 def profile(request):
     return render(request, 'jobs/profile.html')
 
-from .forms import ProfileForm
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def edit_profile(request):
@@ -129,17 +151,15 @@ def edit_profile(request):
 
     if request.method == "POST":
         form = ProfileForm(request.POST, request.FILES, instance=profile)
-
         if form.is_valid():
             form.save()
+            messages.success(request, "Profile updated successfully!")
             return redirect('profile')
     else:
         form = ProfileForm(instance=profile)
 
     return render(request, 'jobs/edit_profile.html', {'form': form})
 
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def toggle_dark_mode(request):
@@ -147,4 +167,23 @@ def toggle_dark_mode(request):
         user_profile = request.user.profile
         user_profile.dark_mode = 'dark_mode' in request.POST
         user_profile.save()
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+@login_required
+def notifications_view(request):
+    notifications = request.user.notifications.all().order_by('-created_at')
+
+    # Mark all as read
+    notifications.update(is_read=True)
+
+    return render(request, 'jobs/notifications.html', {
+        'notifications': notifications
+    })
+
+
+@login_required
+def mark_notifications_read(request):
+    request.user.notifications.update(is_read=True)
+    return redirect('home')

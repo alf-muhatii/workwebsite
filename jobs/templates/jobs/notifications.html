@@ -1,0 +1,15 @@
+{% extends 'jobs/base.html' %}
+{% block content %}
+<h2>Your Notifications</h2>
+
+{% for notification in notifications %}
+  <p>
+    {{ notification.message }}
+    {% if not notification.is_read %}
+      <strong>(new)</strong>
+    {% endif %}
+  </p>
+{% empty %}
+  <p>No notifications</p>
+{% endfor %}
+{% endblock %}

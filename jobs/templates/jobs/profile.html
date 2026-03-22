@@ -1,34 +1,121 @@
 {% extends 'jobs/base.html' %}
 {% block content %}
 
-<h2>My Profile</h2>
-<img src="{{ request.user.profile.profile_pic.url }}" width="150">
-<p><strong>Username:</strong> {{ request.user.username }}</p>
-<p><strong>Email:</strong> {{ request.user.email }}</p>
+<div class="container mt-5">
 
-<h3>Bio</h3>
-<p>{{ request.user.profile.bio }}</p>
+    <div class="row">
 
-<h3>Saved Jobs</h3>
+        <div class="col-md-4">
+            <div class="card shadow-sm text-center p-4
+                {% if user.profile.dark_mode %}bg-dark text-light{% endif %}">
 
-{% if request.user.saved_jobs.all %}
-    <ul>
-        {% for job in request.user.saved_jobs.all %}
-            <li>{{ job.title }}</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No saved jobs yet.</p>
-{% endif %}
-<a href="{% url 'edit_profile' %}">Edit Profile</a>
 
-<form method="post" action="{% url 'toggle_dark_mode' %}">
-    {% csrf_token %}
-    <label>
-        <input type="checkbox" name="dark_mode" value="true" {% if user.profile.dark_mode %}checked{% endif %}>
-        Dark Mode
-    </label>
-    <button type="submit">Save</button>
-</form>
+                <img src="{% if request.user.profile.profile_pic %}{{ request.user.profile.profile_pic.url }}{% else %}/media/default.png{% endif %}"
+                     class="rounded-circle mx-auto mb-3 profile-pic-lg">
+
+                <h4 class="fw-bold">{{ request.user.username }}</h4>
+                <p class="{% if user.profile.dark_mode %}text-light{% else %}text-muted{% endif %}">
+                    {{ request.user.email }}
+                </p>
+
+                <a href="{% url 'edit_profile' %}"
+                   class="btn {% if user.profile.dark_mode %}btn-outline-light{% else %}btn-outline-primary{% endif %} btn-sm mt-2">
+                     Edit Profile
+                </a>
+
+            </div>
+        </div>
+
+
+        <div class="col-md-8">
+
+
+            <div class="card shadow-sm p-4 mb-4
+                {% if user.profile.dark_mode %}bg-dark text-light{% endif %}">
+
+                <h5 class="fw-bold mb-3">About Me</h5>
+                <p>
+                    {% if request.user.profile.bio %}
+                        {{ request.user.profile.bio }}
+                    {% else %}
+                        <span class="{% if user.profile.dark_mode %}text-light{% else %}text-muted{% endif %}">
+                            No bio added yet.
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+
+
+            <div class="card shadow-sm p-4 mb-4
+                {% if user.profile.dark_mode %}bg-dark text-light{% endif %}">
+
+                <h5 class="fw-bold mb-3">Saved Jobs</h5>
+
+                {% if request.user.saved_jobs.all %}
+                    <ul class="list-group">
+
+                        {% for job in request.user.saved_jobs.all %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center
+                            {% if user.profile.dark_mode %}bg-dark text-light border-secondary{% endif %}">
+
+                            {{ job.title }}
+
+                            <span class="badge
+                                {% if user.profile.dark_mode %}bg-light text-dark{% else %}bg-primary{% endif %}">
+                                Saved
+                            </span>
+                        </li>
+                        {% endfor %}
+
+                    </ul>
+                {% else %}
+                    <p class="{% if user.profile.dark_mode %}text-light{% else %}text-muted{% endif %}">
+                        No saved jobs yet.
+                    </p>
+                {% endif %}
+            </div>
+
+
+            <div class="card shadow-sm p-4
+                {% if user.profile.dark_mode %}bg-dark text-light{% endif %}">
+
+                <h5 class="fw-bold mb-3">Settings</h5>
+
+                <form method="post" action="{% url 'toggle_dark_mode' %}">
+                    {% csrf_token %}
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               name="dark_mode"
+                               id="darkModeSwitch"
+                               {% if user.profile.dark_mode %}checked{% endif %}>
+                        <label class="form-check-label" for="darkModeSwitch">
+                            Enable Dark Mode
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                            class="btn {% if user.profile.dark_mode %}btn-light{% else %}btn-dark{% endif %} btn-sm mt-3">
+                        Save Settings
+                    </button>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-pic-lg {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid #ddd;
+}
+
+
+</style>
 
 {% endblock %}

@@ -1,16 +1,74 @@
 {% extends 'jobs/base.html' %}
 {% block content %}
-<h2>Edit Profile</h2>
 
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
 
-    <label>Bio:</label><br>
-    {{ form.bio }}<br><br>
+            <div class="card shadow-sm p-4
+                {% if user.profile.dark_mode %}bg-dark text-light{% endif %}">
 
-    <label>Profile Picture:</label><br>
-    {{ form.profile_pic }}<br><br>
+                <h3 class="text-center fw-bold mb-4">Edit Profile</h3>
 
-    <button type="submit">Save Changes</button>
-</form>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Bio</label>
+                        {{ form.bio }}
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Profile Picture</label>
+                        {{ form.profile_pic }}
+                    </div>
+
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'profile' %}"
+                           class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-success">
+                             Save Changes
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Bio textarea dark mode */
+{% if user.profile.dark_mode %}
+textarea {
+    background-color: #000 !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+}
+
+/* File input button (choose file) blue */
+input[type="file"]::file-selector-button {
+    background-color: #0d6efd;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* File input hover effect */
+input[type="file"]::file-selector-button:hover {
+    background-color: #0b5ed7;
+}
+{% endif %}
+</style>
+
 {% endblock %}

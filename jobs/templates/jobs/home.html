@@ -1,6 +1,7 @@
 {% extends 'jobs/base.html' %}
 
 {% block content %}
+
 <h2 class="mb-4">Available Jobs</h2>
 
 <form method="get" class="mb-4">
@@ -13,50 +14,63 @@
                aria-label="Search jobs">
 
         <button type="submit"
-                class="btn {% if user.is_authenticated and user.profile.dark_mode %}btn-outline-light{% else %}btn-primary{% endif %} px-4"
-                aria-label="Submit search">
+                class="btn {% if user.is_authenticated and user.profile.dark_mode %}btn-outline-light{% else %}btn-primary{% endif %} px-4">
             <i class="fas fa-search me-1"></i> Search
         </button>
     </div>
+</form>
 
-    <br>
 
-
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
     {% for job in jobs %}
     <div class="col">
-        <div class="card h-100">
-            <img src="{{ job.image.url }}" class="card-img-top" style="height:200px; object-fit:cover; width:100%;">
+        <div class="card h-100 shadow-sm">
+
+            {% if job.image %}
+                <img src="{{ job.image.url }}" class="card-img-top"
+                     style="height:200px; object-fit:cover;">
+            {% else %}
+                <img src="/media/default.png" class="card-img-top"
+                     style="height:200px; object-fit:cover;">
+            {% endif %}
+
             <div class="card-body d-flex flex-column">
+
                 <h5 class="card-title">{{ job.title }}</h5>
-                <p class="card-text">{{ job.description }}</p>
+                <p class="card-text">{{ job.description|truncatewords:20 }}</p>
                 <p><strong>County:</strong> {{ job.county }}</p>
 
-                <!-- Poster Info -->
-                <div class="d-flex align-items-center mt-2">
+                <div class="d-flex align-items-center mt-2 mb-3">
                     <img src="{% if job.posted_by.profile.profile_pic %}{{ job.posted_by.profile.profile_pic.url }}{% else %}/media/default.png{% endif %}"
                          alt="{{ job.posted_by.username }}"
                          class="profile-pic me-2">
                     <span>{{ job.posted_by.username }}</span>
                 </div>
 
-                {% if user.is_authenticated and job.posted_by == user %}
-                <form method="post" action="{% url 'delete_job' job.id %}" style="display:inline; margin-top:auto;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-danger btn-sm mt-auto">Delete</button>
-                </form>
-                {% endif %}
+                <div class="mt-auto d-flex justify-content-between">
 
-                <form method="post" action="{% url 'save_job' job.id %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-primary btn-sm mt-2">
-                        {% if user in job.saved_by.all %}
-                            Unsave
-                        {% else %}
-                            Save
-                        {% endif %}
-                    </button>
-                </form>
+                    {% if user.is_authenticated and job.posted_by == user %}
+                    <form method="post" action="{% url 'delete_job' job.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            🗑 Delete
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'save_job' job.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                            {% if user in job.saved_by.all %}
+                                Unsave
+                            {% else %}
+                                Save
+                            {% endif %}
+                        </button>
+                    </form>
+
+                </div>
+
             </div>
         </div>
     </div>

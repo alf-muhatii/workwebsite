@@ -32,6 +32,7 @@ path('saved/', views.saved_jobs, name='saved_jobs'),
 path('profile/', views.profile, name='profile'),
 path('edit-profile/', views.edit_profile, name='edit_profile'),
 path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
+path('notifications/', views.notifications_view, name='notifications')
 
 ]
 

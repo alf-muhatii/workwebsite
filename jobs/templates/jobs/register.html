@@ -1,12 +1,89 @@
 {% extends 'jobs/base.html' %}
 {% block content %}
 
-<div class="container mt-4">
-    <h2 class="mb-4">Register</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Register</button>
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <!-- Card wrapper -->
+            <div class="card shadow-sm p-4
+                {% if user.is_authenticated and user.profile.dark_mode %}bg-dark text-light{% endif %}">
+
+                <h2 class="text-center fw-bold mb-4">Create an Account</h2>
+
+                <!-- Registration Form -->
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.username.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password1.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password2.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-success btn-lg">✅ Register</button>
+                    </div>
+
+                </form>
+
+                <!-- Login link -->
+                <p class="text-center mt-3 {% if user.is_authenticated and user.profile.dark_mode %}text-light{% else %}text-muted{% endif %}">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="text-decoration-none">Log in</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card input {
+    border-radius: 0.5rem;
+    padding: 10px;
+    {% if user.is_authenticated and user.profile.dark_mode %}
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    {% else %}
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    {% endif %}
+}
+.btn-success:hover {
+    background-color: #28a745cc;
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+}
+</style>
 
 {% endblock %}
